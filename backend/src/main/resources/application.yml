@@ -4,15 +4,16 @@ spring:
   application:
     name: Intro project
   datasource:
-    url: jdbc:postgresql://localhost:5432/lundegaard
-    username: lundegaard
-    password: lundegaard
+    url: jdbc:h2:file:~/test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
   jpa:
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQL95Dialect
-      hibernate.jdbc.lob.non_contextual_creation: true
   flyway:
     baseline-on-migrate: true
     locations: classpath:/db/migration,classpath:/db/data
