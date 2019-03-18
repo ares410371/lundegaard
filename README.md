@@ -2,6 +2,10 @@
 
 Java Backend & VueJs Frontend
 
-####Run:  
+##Run:  
     mvn clean install
     mvn -pl backend spring-boot:run
+    
+##Todo:
+    frontend validation not working :( 
+    unit tests
