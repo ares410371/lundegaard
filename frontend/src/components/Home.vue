@@ -1,15 +1,8 @@
 <template>
-    <div class="mx-auto w-25" align=""center>
+    <div class="mx-auto w-50" align="" center>
         <h1>Contact us</h1>
 
         <b-form @submit.prevent="send">
-            <div v-if="errors.length">
-                <b>Please correct the following error(s):</b>
-                <ul>
-                    <li v-for="error in errors">{{ error }}</li>
-                </ul>
-            </div>
-
             <b-form-group label="Kind of request" label-for="inputType">
                 <b-form-select id="inputType" v-model="selected" :options="requestTypes">
                     <template slot="first">
@@ -19,15 +12,25 @@
             </b-form-group>
 
             <b-form-group label="Policy Number" label-for="inputPolicyNumber">
-                <b-form-input id="inputPolicyNumber" v-model="policyNumber" type="text"/>
+                <b-input id="inputPolicyNumber" v-model="policyNumber" type="text" name="policyNumber"
+                         :class="{'input': true, 'is-danger': errors.has('policyNumber') }"/>
+                <i v-show="errors.has('policyNumber')" class="fa fa-warning"></i>
+                <span v-show="errors.has('policyNumber')"
+                      class="help is-danger">{{ errors.first('policyNumber') }}</span>
             </b-form-group>
 
             <b-form-group label="Name" label-for="inputName">
-                <b-form-input id="inputName" v-model="name" type="text"/>
+                <b-input id="inputName" v-model="name" type="text" name="name"
+                         :class="{'input': true, 'is-danger': errors.has('name') }"/>
+                <i v-show="errors.has('name')" class="fa fa-warning"></i>
+                <span v-show="errors.has('name')" class="help is-danger">{{ errors.first('name') }}</span>
             </b-form-group>
 
             <b-form-group label="Surname" label-for="inputSurname">
-                <b-form-input id="inputSurname" v-model="surname" type="text"/>
+                <b-form-input id="inputSurname" v-model="surname" type="text" name="surname"
+                              class="{'input': true, 'is-danger': errors.has('surname') }"/>
+                <i v-show="errors.has('surname')" class="fa fa-warning"></i>
+                <span v-show="errors.has('surname')" class="help is-danger">{{ errors.first('surname') }}</span>
             </b-form-group>
 
             <b-form-group label="Your request" label-for="inputRequest">
@@ -43,9 +46,12 @@
 </template>
 
 <script>
+    import {Validator} from "vee-validate";
+
     export default {
         name: 'home',
-        data: function () {
+        validator: null,
+        data() {
             return {
                 requestTypes: [],
                 selected: '',
@@ -53,49 +59,67 @@
                 policyNumber: '',
                 name: '',
                 surname: '',
-                errors: []
+                errors: null
             }
         },
         mounted() {
             this.$http.get('/form/types')
                 .then(response => {
-                    console.log(response.data)
-                    this.requestTypes = response.data
+                    console.log(response.data);
+                    this.requestTypes = response.data;
                 })
+        },
+        watch: {
+            name(value) {
+                this.validator.validate("name", value);
+            },
+            surname(value) {
+                this.validator.validate("surname", value);
+            },
+            policyNumber(value) {
+                this.validator.validate("policyNumber", value);
+            },
+            request(value) {
+                this.validator.validate("request", value);
+            }
         },
         methods: {
             send: function () {
-                // if (!this.name.match('^[A-Za-z]+$')) {
-                //     this.errors.push('Name must contains only alphabetic characters.')
-                // }
-                // if (!this.surname.match('^[A-Za-z]+$')) {
-                //     this.errors.push('Surname must contains only alphabetic characters.')
-                // }
-                // if (!this.policyNumber.match('^[A-Za-z0-9]+$')) {
-                //     this.errors.push('Policy number must contains only alphanumeric characters.')
-                // }
-                // if (this.request.length > 2000) {
-                //     this.errors.push('Request length must be less than 2000 characters.')
-                // }
-                //
-                // if (this.errors.length !== 0) {
-                //     this.errors = [];
-                //     return false
-                // }
-
-                this.$http.post('/form', {
-                    policyNumber: this.policyNumber,
+                this.validator.validateAll({
                     name: this.name,
                     surname: this.surname,
-                    request: this.request,
-                    requestType: this.selected
-                }).then(
-                    (response) => {}
-                ).catch((e) => {
-                    console.error(e)
-                    this.errors.push(e.message)
+                    policyNumber: this.policyNumber,
+                    request: this.request
+                }).then(result => {
+                    console.log(result);
+                    if (result) {
+                        this.$http.post('/form', {
+                            policyNumber: this.policyNumber,
+                            name: this.name,
+                            surname: this.surname,
+                            request: this.request,
+                            requestType: this.selected
+                        }).then(
+                            (response) => {
+                            }
+                        ).catch((e) => {
+                            console.error(e);
+                        });
+                        alert('Form Submitted!');
+                        return;
+                    }
+                    alert('Correct them errors!');
                 })
             }
+        },
+        created() {
+            this.validator = new Validator({
+                name: 'alpha',
+                surname: 'alpha',
+                policyNumber: 'alpha_num',
+                request: 'max:2000'
+            });
+            this.$set(this, 'errors', this.validator.errors);
         }
     }
 </script>
