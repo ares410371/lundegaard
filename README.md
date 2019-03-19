@@ -1,11 +1,14 @@
-# Intro project
+# Intro project - Lundegaard
 
 Java Backend & VueJs Frontend
 
-##Run:  
-    mvn clean install
-    mvn -pl backend spring-boot:run
+**Run:**
+```
+mvn clean install
+mvn -pl backend spring-boot:run
+```
     
-##Todo:
-    frontend validation not working :( 
-    unit tests
+**Todo:**
+```
+unit tests on backend
+```
